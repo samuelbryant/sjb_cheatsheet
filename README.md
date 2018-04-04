@@ -19,7 +19,6 @@ See `sjb_cheatsheet -h` for more information. The most basic usage of this progr
 ~~~~
 $ sjb_cheatsheet add bash echo 'echo is a simple program that prints its argument to stdout' bash,unix,posix
 $ sjb_cheatsheet add python 'get user input' 'In python2, raw_input() is a simple way to get user input. In python3, input(msg) is preferred.' python,code
-
 $ sjb_cheatsheet show
 1  bash             bash, unix, posix
    echo             echo is a simple program that prints its argument to
