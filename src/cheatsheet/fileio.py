@@ -3,7 +3,7 @@ import cheatsheet.classes
 import cheatsheet.display
 
 
-def _entry_to_json(entry):
+def _encode_entry(entry):
   return {
     'id': entry.id,
     'primary': entry.primary,
@@ -12,7 +12,7 @@ def _entry_to_json(entry):
     'answer': entry.answer
   }
 
-def _parse_entry_json(json_object):
+def _decode_entry(json_object):
   return(cheatsheet.classes.Entry(
     json_object['primary'],
     json_object['clue'],
@@ -35,7 +35,7 @@ def save_cheatsheet(cs, fname=None):
 
   entries_js = []
   for entry in cs.entries:
-    entries_js.append(_entry_to_json(entry))
+    entries_js.append(_encode_entry(entry))
 
   top_json = {
     'cheatsheet': {
@@ -68,7 +68,7 @@ def load_cheatsheet(fname=None):
   
   # Add entries to CheatSheet
   for entry_json in ob['entries']:
-    entry = _parse_entry_json(entry_json)
+    entry = _decode_entry(entry_json)
     cs.add_entry(entry, initial_load=True)
 
   return(cs)

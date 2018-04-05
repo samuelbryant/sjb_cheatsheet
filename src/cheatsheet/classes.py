@@ -63,6 +63,11 @@ class CheatSheet:
     # Set of all entry ID's to avoid duplicate ID's
     self.id_set = set()
 
+  def _set_next_entry_id(self):
+    """Returns a suitable ID for a new entry and increments ID state."""
+    self.last_entry_id += 1
+    return(self.last_entry_id)
+
   def get_entries(self, andor=SEARCH_OR, primary=None, tags={}):
     """Returns a list of entries which match the given conditions.
 
@@ -154,17 +159,15 @@ class CheatSheet:
 
     # Make sure any 'init load' entry already has an id
     if initial_load and not entry.id:
-      raise ProgrammingError(
-        'CheatSheet.add_entry', 'missing ID on initial_load Entry')
-
-    if not initial_load:
-      # Make sure any new entry does not have an id
-      if entry.id: 
-        raise ProgrammingError(
-          'CheatSheet.add_entry', 'Added Entry that already has an ID')
+      raise ProgrammingError('CheatSheet.add_entry', 'Old Entry missing ID!')
+    # Make sure any new entry does not have an id
+    if not initial_load and entry.id:
+      raise ProgrammingError('CheatSheet.add_entry', 'New Entry has ID!')
+    
+    if not initial_load: 
       # Set the id correctly
-      entry.id = self.last_entry_id + 1
-      self.last_entry_id += 1
+      entry.id = self._set_next_entry_id()
+      
       # Mark cheatsheet as modified
       self._mark_modified()
 
