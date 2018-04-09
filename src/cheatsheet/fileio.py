@@ -18,7 +18,7 @@ def _decode_entry(json_object):
     json_object['primary'],
     json_object['clue'],
     json_object['answer'],
-    set(json_object['tags']),
+    tags=set(json_object['tags']),
     id=json_object['id']))
 
 def _get_default_cheatsheet_file():

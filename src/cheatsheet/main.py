@@ -100,7 +100,7 @@ class Program(object):
       'answer', type=str,
       help='The full explanation of this entry. Can be as long as required')
     p.add_argument(
-      'tags', type=_set_arg,
+      '--tags', type=_set_arg,
       help='Comma separated list of tags for this entry')
     _add_arguments_generic(p)
     _add_arguments_verbosity(p)
@@ -109,7 +109,7 @@ class Program(object):
     # Load cheatsheet, add an entry, then save the results
     cs = cheatsheet.fileio.load_cheatsheet(fname=args.file)  
     entry = cheatsheet.classes.Entry(
-      args.primary, args.clue, args.answer, args.tags)
+      args.primary, args.clue, args.answer, tags=args.tags)
     cs.add_entry(entry)
     cheatsheet.fileio.save_cheatsheet(cs, fname=args.file)
 

@@ -19,12 +19,12 @@ def _default_if_none(value, default):
 class Entry:
   """Class representing an entry in a cheat sheet"""
 
-  def __init__(self, primary, clue, answer, tags, id=None):
+  def __init__(self, primary, clue, answer, tags=None, id=None):
     # Values that shoudl be set at construction time
     self.clue = clue
     self.primary = primary
     self.answer = answer
-    self.tags = tags
+    self.tags = _default_if_none(tags, set())
 
     # Values that should only be set when reading from file.
     self.id = id
@@ -76,7 +76,7 @@ class Entry:
       raise InvalidEntryError('Bad primary: '+str(self.primary))
     if not self.answer or not isinstance(self.answer, str):
       raise InvalidEntryError('Bad answer: '+str(self.answer))
-    if not self.tags or not isinstance(self.tags, set):
+    if not isinstance(self.tags, set):
       raise InvalidEntryError('Bad tags: '+str(self.tags))
 
     if self.id is not None and not isinstance(self.id, int):
