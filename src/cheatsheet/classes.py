@@ -8,15 +8,30 @@ SEARCH_AND = 0
 SEARCH_OR = 1
 
 
+def _default_if_none(value, default):
+  """Returns value if it is not None, otherwise default."""
+  if value is None:
+    return(default)
+  else:
+    return(value)
+
+
 class Entry:
   """Class representing an entry in a cheat sheet"""
 
   def __init__(self, primary, clue, answer, tags, id=None):
-    self.id = id
+    # Values that shoudl be set at construction time
     self.clue = clue
     self.primary = primary
     self.answer = answer
-    self.tags = set(tags)
+    self.tags = tags
+
+    # Values that should only be set when reading from file.
+    self.id = id
+
+    # Validation
+    self.validate()
+    
 
   def matches(self, andor, primary=None, tags={}):
     """Checks if this entry matches the primary and tag arguments. 
@@ -43,6 +58,29 @@ class Entry:
     else:
       raise ProgrammingError(
         'Entry.matches', 'invalid andor argument '+str(andor))
+
+  def validate(self):
+    """Validates that the values of this item are sensible.
+
+    This method should be called twice: The first time at the end of the
+    initialization code to make sure the user is not misusing the constructor.
+    The second time should be before saving to a database to make sure that
+    manipulations made to this item after initialization were valid.
+
+    Raises:
+      InvalidEntryError: If validation fails
+    """
+    if not self.clue or not isinstance(self.clue, str):
+      raise InvalidEntryError('Bad entry clue: '+str(self.clue))
+    if not self.primary or not isinstance(self.primary, str):
+      raise InvalidEntryError('Bad primary: '+str(self.primary))
+    if not self.answer or not isinstance(self.answer, str):
+      raise InvalidEntryError('Bad answer: '+str(self.answer))
+    if not self.tags or not isinstance(self.tags, set):
+      raise InvalidEntryError('Bad tags: '+str(self.tags))
+
+    if self.id is not None and not isinstance(self.id, int):
+      raise InvalidEntryError('Bad id: '+str(self.id))
 
 
 class CheatSheet:
@@ -100,8 +138,10 @@ class CheatSheet:
   def update_entry(self, id, primary=None, clue=None, answer=None, tags=None):
     """Updates entry given by id and returns the result.
     
-    Only arguments that are truthy will be updated. If no entry is found at that id, the method returns None. The meta CheatSheet objects are updated are updating the entry.
-
+    Only arguments that are not None will be updated. If no entry is found at
+    that id, an Error is raised. The meta objects are updated to reflect the 
+    new contents of the entry.
+    
     Returns:
       Entry: The newly updated entry object.
 
@@ -110,11 +150,11 @@ class CheatSheet:
     """
     entry = self.get_entry(id)
 
-    if primary or clue or answer or tags:
-      entry.primary = primary or entry.primary
-      entry.clue = clue or entry.clue
-      entry.answer = answer or entry.answer
-      entry.tags = (tags and set(tags)) or entry.tags
+    if primary is not None or clue is not None or answer is not None or tags is not None:
+      entry.primary = _default_if_none(primary, entry.primary)
+      entry.clue = _default_if_none(clue, entry.clue)
+      entry.answer = _default_if_none(answer, entry.answer)
+      entry.tags = _default_if_none(tags, entry.tags)
       self._mark_modified()
       self._recompute_object_maps()
 
@@ -132,9 +172,8 @@ class CheatSheet:
     for i in range(len(self.entries)):
       if id is self.entries[i].id:
         deleted = self.entries.pop(i)
-        # Mark as modified.
+        # Mark as modified and recompute meta maps.
         self._mark_modified()
-        # Recalculate maps like id_set and tag_set since we lost an element.
         self._recompute_object_maps()
 
         return(deleted)
@@ -232,6 +271,16 @@ class InvalidIDError(Error):
   def __init__(self, method, msg):
     self.message = '%s in method %s\n\tMSG: %s' % \
       ('InvalidIDError', method, msg)
+
+
+class InvalidEntryError(Error):
+  """Exception raised when entry validation fails.
+
+  This most likely indicates an issue with either encoding, decoding, or 
+  reading a list made by a prior version.
+  """
+  def __init__(self, msg):
+    self.message = '%s: %s' % ('InvalidEntryError', msg)
     
 
 class ProgrammingError(Error):

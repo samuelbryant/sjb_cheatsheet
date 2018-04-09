@@ -4,6 +4,7 @@ import cheatsheet.display
 
 
 def _encode_entry(entry):
+  entry.validate()
   return {
     'id': entry.id,
     'primary': entry.primary,

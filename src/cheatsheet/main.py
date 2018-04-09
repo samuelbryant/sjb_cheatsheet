@@ -173,7 +173,7 @@ class Program(object):
       question=\
         'The entry given by id '+str(args.id)+' is:\n' + \
         cheatsheet.display.entry_repr(entry, format_style=args.style) + \
-        '\n Are you sure you want to delete it? '
+        '\nAre you sure you want to delete it? '
       cont = cheatsheet.display.prompt_yes_no(question, default=False)
       if not cont:
         exit(0)
