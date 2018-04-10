@@ -1,0 +1,11 @@
+************* Module classes
+W:159, 0: TODO: clean this up. (fixme)
+************* Module main
+R: 93, 2: Method could be a function (no-self-use)
+R:126, 2: Method could be a function (no-self-use)
+R:163, 2: Method could be a function (no-self-use)
+R:197, 2: Method could be a function (no-self-use)
+
+------------------------------------------------------------------
+Your code has been rated at 9.85/10 (previous run: 9.82/10, +0.03)
+

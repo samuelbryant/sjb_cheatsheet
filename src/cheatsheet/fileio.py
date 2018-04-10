@@ -1,4 +1,7 @@
-import os,json
+"""Module responsible for reading/writing cheat sheet json to file."""
+import os
+import json
+import warnings
 import cheatsheet.classes
 import cheatsheet.display
 
@@ -6,7 +9,7 @@ import cheatsheet.display
 def _encode_entry(entry):
   entry.validate()
   return {
-    'id': entry.id,
+    'oid': entry.oid,
     'primary': entry.primary,
     'tags': list(entry.tags),
     'clue': entry.clue,
@@ -19,21 +22,24 @@ def _decode_entry(json_object):
     json_object['clue'],
     json_object['answer'],
     tags=set(json_object['tags']),
-    id=json_object['id']))
+    oid=json_object['oid']))
 
 def _get_default_cheatsheet_file():
   if 'XDG_DATA_HOME' in os.environ:
-    return(os.environ['XDG_DATA_HOME']+'/'+'sjb_cheatsheet/cheatsheet.json')
-  else:
-    return(os.environ['HOME']+'/.local/share/sjb_cheatsheet/cheatsheet.json')
+    return os.environ['XDG_DATA_HOME']+'/'+'sjb_cheatsheet/cheatsheet.json'
+  return os.environ['HOME']+'/.local/share/sjb_cheatsheet/cheatsheet.json'
 
 def save_cheatsheet(cs, fname=None):
   """Saves a cheatsheet object to a json file.
+
   This attempts to save the CheatSheet object cs as a file by first looking at:
     1) the given file name string fname
     2) the file that the CheatSheet object was originally read from
-    3) the default file stored in a standard xdg linux manner."""
+    3) the default file stored in a standard xdg linux manner.
 
+  Arguments:
+    fname: str an optional file name to read the cheat sheet from.
+  """
   entries_js = []
   for entry in cs.entries:
     entries_js.append(_encode_entry(entry))
@@ -47,29 +53,37 @@ def save_cheatsheet(cs, fname=None):
   }
 
   fname = fname or cs.src_fname or _get_default_cheatsheet_file()
-  file = open(fname, "w")
-  
-  file.write(json.dumps(top_json, indent=2))
+  json_file = open(fname, "w")
+
+  json_file.write(json.dumps(top_json, indent=2))
 
 def load_cheatsheet(fname=None):
+  """Loads a cheat sheet from a json file.
+
+  Arguments:
+    fname: str an optional file name to read the cheat sheet from.
+
+  Returns:
+    CheatSheet: object with contents given by the loaded file.
+  """
   fname = fname or _get_default_cheatsheet_file()
 
   # Attempt to open
   if not os.path.isfile(fname):
-    cheatsheet.display.wrn("no cheatsheet file found")
-    return(cheatsheet.classes.CheatSheet(src_fname=fname))
+    warnings.warn('no cheatsheet file found', UserWarning)
+    return cheatsheet.classes.CheatSheet(src_fname=fname)
 
-  file = open(fname)
-  ob = json.load(file)['cheatsheet']
-  modified_date = ('modified_date' in ob and ob['modified_date']) or None
+  json_file = open(fname)
+  ob = json.load(json_file)['cheatsheet']
+  modified_date = ob['modified_date'] if 'modified_date' in ob else None
 
   # Create new blank cs book.
   cs = cheatsheet.classes.CheatSheet(
     src_fname=fname, modified_date=modified_date)
-  
+
   # Add entries to CheatSheet
   for entry_json in ob['entries']:
     entry = _decode_entry(entry_json)
     cs.add_entry(entry, initial_load=True)
 
-  return(cs)
+  return cs
