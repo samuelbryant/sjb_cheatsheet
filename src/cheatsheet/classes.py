@@ -138,6 +138,21 @@ class CheatSheet:
     raise InvalidIDError(
       'CheatSheet.get_entry', 'non-existent entry oid '+str(oid))
 
+  def get_new_tags(self, primary, tags):
+    """Computes set of primary and tags that are not in database.
+
+    Arguments:
+      primary: str primary tag to check if present in primary set.
+      tags: set(str) of tags to check if present in tag set.
+
+    Returns:
+      Set: of primary + all tags that are new to database.
+    """
+    new_elts = tags - self.tag_set
+    if primary not in self.primary_to_entries:
+      new_elts.add(primary)
+    return new_elts
+
   def update_entry(self, oid, clue=None, answer=None, primary=None, tags=None):
     """Updates entry given by oid and returns the result.
 

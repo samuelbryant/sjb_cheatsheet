@@ -75,6 +75,9 @@ class Program(object):
     parser.add_argument(
       'answer', type=str,
       help='The full explanation of this entry. Can be as long as required')
+    parser.add_argument(
+      '--f', dest='force', action='store_const', const=1, default=0,
+      help='Force: doesnt ask before adding new tags or primary entries')
     _add_arguments_generic(parser)
     args = parser.parse_args(sys.argv[2:])
 
@@ -82,6 +85,18 @@ class Program(object):
     cs = cheatsheet.fileio.load_cheatsheet(fname=args.file)
     entry = cheatsheet.classes.Entry(
       args.clue, args.answer, primary=args.tags[0], tags=args.tags[1])
+
+    # Check if any tag or the primary is new and prompt user before continuing.
+    new_elts = cs.get_new_tags(args.tags[0], args.tags[1])
+    if new_elts and not args.force:
+      question = (
+        'The following tags are not present in the database: ' + \
+        ', '.join(new_elts) + \
+        '\nAre you sure you want to add this element? ')
+      cont = cheatsheet.display.prompt_yes_no(question, default=True)
+      if not cont:
+        exit(0)
+
     cs.add_entry(entry)
     cheatsheet.fileio.save_cheatsheet(cs, fname=args.file)
 
