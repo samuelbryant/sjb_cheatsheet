@@ -18,9 +18,9 @@ def _encode_entry(entry):
 
 def _decode_entry(json_object):
   return(cheatsheet.classes.Entry(
-    json_object['primary'],
-    json_object['clue'],
-    json_object['answer'],
+    clue=json_object['clue'],
+    answer=json_object['answer'],
+    primary=json_object['primary'],
     tags=set(json_object['tags']),
     oid=json_object['oid']))
 

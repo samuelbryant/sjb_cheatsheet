@@ -15,11 +15,11 @@ def _default_if_none(value, default):
 class Entry:
   """Class representing an entry in a cheat sheet"""
 
-  def __init__(self, primary, clue, answer, tags=None, oid=None):
-    # Values that shoudl be set at construction time
+  def __init__(self, clue, answer, primary, tags, oid=None):
+    # Values that should be set at construction time
     self.clue = clue
-    self.primary = primary
     self.answer = answer
+    self.primary = primary
     self.tags = _default_if_none(tags, set())
 
     # Values that should only be set when reading from file.
@@ -29,32 +29,30 @@ class Entry:
     self.validate()
 
 
-  def matches(self, andor, primary=None, tags=None):
-    """Checks if this entry matches the primary and tag arguments.
+  def matches(self, andor, tags=None):
+    """Checks if this entry matches the tag arguments.
 
     Arguments:
       andor: Determines if ALL conditions must be met or ANY condition must be
         met. Should be SEARCH_AND or SEARCH_OR
-      primary: String primary tag to match.
-      tags: Set of secondary tags to match.
+      tags: Set of tags to match (can be primary or secondary.)
 
     Returns:
       bool: True if it matches, false otherwise.
     """
-    # If andor is SEARCH_AND, we must match all of the conditions:
-    if andor is SEARCH_AND:
-      if primary is not None and primary != self.primary:
-        return False
-      if tags is not None and not tags.issubset(self.tags):
-        return False
+    if not tags:
       return True
+
+    if andor is SEARCH_AND:
+      for tag in tags:
+        if tag != self.primary and tag not in self.tags:
+          return False
+      return True
+
     elif andor is SEARCH_OR:
-      if not primary and not tags:
-        return True
-      if primary and primary == self.primary:
-        return True
-      if tags and bool((tags.intersection(self.tags))):
-        return True
+      for tag in tags:
+        if tag == self.primary or tag in self.tags:
+          return True
       return False
     else:
       raise ProgrammingError(
@@ -112,19 +110,18 @@ class CheatSheet:
     self.last_entry_oid += 1
     return self.last_entry_oid
 
-  def get_entries(self, andor=SEARCH_OR, primary=None, tags=None):
+  def get_entries(self, andor=SEARCH_OR, tags=None):
     """Returns a list of entries which match the given conditions.
 
     Arguments:
       andor: Determines if ALL conditions must be met or ANY condition must be
         met. Should be SEARCH_AND or SEARCH_OR
-      primary: String primary tag to match.
-      tags: Set of secondary tags to match.
+      tags: Set of tags to match (can be primary or secondary.)
 
     Returns:
       list: A list of Entry objects matching the criteria.
     """
-    return [e for e in self.entries if e.matches(andor, primary, tags)]
+    return [e for e in self.entries if e.matches(andor, tags)]
 
   def get_entry(self, oid):
     """Returns entry with the given oid.
@@ -141,7 +138,7 @@ class CheatSheet:
     raise InvalidIDError(
       'CheatSheet.get_entry', 'non-existent entry oid '+str(oid))
 
-  def update_entry(self, oid, primary=None, clue=None, answer=None, tags=None):
+  def update_entry(self, oid, clue=None, answer=None, primary=None, tags=None):
     """Updates entry given by oid and returns the result.
 
     Only arguments that are not None will be updated. If no entry is found at
@@ -241,6 +238,7 @@ class CheatSheet:
 
     for tag in entry.tags:
       self.tag_set.add(tag)
+    self.tag_set.add(entry.primary)
 
     # Set last_oid to the highest oid.
     if entry.oid > self.last_entry_oid:

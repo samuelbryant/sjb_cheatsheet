@@ -23,6 +23,12 @@ def _set_arg(string):
   return set(string.split(','))
 
 
+def _tags_arg(string):
+  """Pulls out primary tag (first tag) from the others"""
+  tags = string.split(',')
+  return (tags[0], set(tags[1:]))
+
+
 def _add_arguments_generic(parser):
   """Adds argparse arguments that apply universally to all commands."""
   parser.add_argument(
@@ -98,17 +104,14 @@ class Program(object):
 
     ## Core required arguments
     parser.add_argument(
-      'primary', type=str,
-      help='Primary tag which this cheat sheet entry is listed under')
+      'tags', type=_tags_arg,
+      help='Comma separated list of tags. The first tag is the "primary" tag')
     parser.add_argument(
       'clue', type=str,
       help='The short string by which to identify this cheatsheet entry')
     parser.add_argument(
       'answer', type=str,
       help='The full explanation of this entry. Can be as long as required')
-    parser.add_argument(
-      '--tags', type=_set_arg,
-      help='Comma separated list of tags for this entry')
     _add_arguments_generic(parser)
     _add_arguments_verbosity(parser)
     args = parser.parse_args(sys.argv[2:])
@@ -116,7 +119,7 @@ class Program(object):
     # Load cheatsheet, add an entry, then save the results
     cs = cheatsheet.fileio.load_cheatsheet(fname=args.file)
     entry = cheatsheet.classes.Entry(
-      args.primary, args.clue, args.answer, tags=args.tags)
+      args.clue, args.answer, primary=args.tags[0], tags=args.tags[1])
     cs.add_entry(entry)
     cheatsheet.fileio.save_cheatsheet(cs, fname=args.file)
 
@@ -131,14 +134,11 @@ class Program(object):
 
     ## Optional arguments
     parser.add_argument(
-      '--primary', type=str,
-      help='Only show entries with this primary tag')
-    parser.add_argument(
       '--tags', type=_set_arg,
       help='Only show entries which match this comma separated list of tags')
     parser.add_argument(
       '--or', dest='andor', action='store_const',
-      const=cheatsheet.classes.SEARCH_AND,
+      const=cheatsheet.classes.SEARCH_OR,
       default=cheatsheet.classes.SEARCH_OR,
       help='Show entries which match ANY of the given conditions')
     parser.add_argument(
@@ -152,13 +152,16 @@ class Program(object):
     # Special handling. If no format style is given and the user gave some
     # filter, then we display the simple style. e.g. if I type show 'bash', I
     # dont want to see 'bash' in every entry.
-    if not args.style and (args.primary or args.tags):
+    if not args.style and args.tags:
       args.style = cheatsheet.display.FORMAT_STYLE_SIMPLE
 
     # Load cheat sheet, find matching entries, and print
     cs = cheatsheet.fileio.load_cheatsheet(fname=args.file)
-    entries = cs.get_entries(args.andor, primary=args.primary, tags=args.tags)
-    cheatsheet.display.display_entries(entries, format_style=args.style)
+    entries = cs.get_entries(args.andor, tags=args.tags)
+    if entries:
+      cheatsheet.display.display_entries(entries, format_style=args.style)
+    else:
+      print('No entries found')
 
   def remove(self):
     """Implements the 'remove' command."""
@@ -203,14 +206,11 @@ class Program(object):
       'oid', type=int,
       help='ID of the entry you wish to update')
     parser.add_argument(
-      '--primary', type=str,
-      help='Primary tag which this cheat sheet entry is listed under')
+      '--tags', type=_tags_arg,
+      help='Comma separated list of tags. The first tag is the "primary" tag')
     parser.add_argument(
       '--clue', type=str,
       help='The short string by which to identify this cheatsheet entry')
-    parser.add_argument(
-      '--tags', type=_set_arg,
-      help='Comma separated list of tags for this entry')
     parser.add_argument(
       '--answer', type=str,
       help='The full explanation of this entry. Can be as long as required')
@@ -222,8 +222,8 @@ class Program(object):
     cs = cheatsheet.fileio.load_cheatsheet(fname=args.file)
     # Update entry in local CheatSheet object.
     updated = cs.update_entry(
-      args.oid, primary=args.primary, clue=args.clue, answer=args.answer,
-      tags=args.tags)
+      args.oid, clue=args.clue, answer=args.answer, primary=args.tags[0],
+      tags=args.tags[1])
     # Save CheatSheet object to file.
     cheatsheet.fileio.save_cheatsheet(cs, fname=args.file)
 
