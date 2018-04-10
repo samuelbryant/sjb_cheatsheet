@@ -2,6 +2,7 @@
 """Module responsible for implementing the command line front end."""
 import sys
 import argparse
+import operator
 import cheatsheet.classes
 import cheatsheet.display
 import cheatsheet.fileio
@@ -13,9 +14,10 @@ sjb_cheatsheet command [<args>]
 
 Where command can be:
   add     Add a new entry to the cheatsheet
+  info    Shows meta info about cheatsheet
+  remove  Removes an entry from the cheatsheet
   show    Shows the entries in a cheatsheet
   update  Updates an entry in the cheatsheet
-  remove  Removes an entry from the cheatsheet
 '''
 
 
@@ -85,6 +87,32 @@ class Program(object):
 
     # Print the results.
     cheatsheet.display.display_entry(entry, format_style=args.style)
+
+  def info(self):
+    """Implements the 'info' command."""
+    parser = argparse.ArgumentParser(
+      prog=PROGRAM + ' info',
+      description='Shows meta-information about the cheat sheet')
+    _add_arguments_generic(parser)
+    args = parser.parse_args(sys.argv[2:])
+
+    cs = cheatsheet.fileio.load_cheatsheet(fname=args.file)
+
+    primary_map = cs.primary_to_entries
+    tag_set = cs.tag_set
+    entries = cs.entries
+    primary_count = {key: len(primary_map[key]) for key in primary_map}
+    sorted_primary = sorted(
+      primary_count.items(), key=operator.itemgetter(1), reverse=True)
+
+    print('Cheat sheet information:')
+    print('  %-25s %s' % ('Number of entries', len(entries)))
+    print('  %-25s %s' % ('Number primary tags', len(primary_map.keys())))
+    print('  %-25s %s' % ('Number of tags', len(tag_set)))
+    print('  %-25s %s' % ('Tag list', ', '.join(tag_set)))
+    print('%-27s %s' % ('Primary key', 'Count'))
+    for key, count in sorted_primary:
+      print('  %-25s %d' % (key, count))
 
   def show(self):
     """Implements the 'show' command."""
