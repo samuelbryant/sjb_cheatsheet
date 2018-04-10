@@ -5,12 +5,10 @@ import sys
 import cheatsheet.classes
 
 ## Global constants that determine the format of the display output
-FORMAT_STYLE_1 = 1
-FORMAT_STYLE_2 = 2
-FORMAT_STYLE_3 = 3
-FORMAT_STYLE_SIMPLE = FORMAT_STYLE_3
-FORMAT_STYLE_DEFAULT = FORMAT_STYLE_1
-FORMAT_CHOICES = [FORMAT_STYLE_1, FORMAT_STYLE_2, FORMAT_STYLE_3]
+FORMAT_STYLE_SIMPLE = 1
+FORMAT_STYLE_FULL = 2
+FORMAT_STYLE_DEFAULT = FORMAT_STYLE_FULL
+FORMAT_CHOICES = [FORMAT_STYLE_SIMPLE, FORMAT_STYLE_FULL]
 
 
 def prompt_yes_no(question, default=None):
@@ -56,12 +54,10 @@ def entry_repr_heading(format_style=None):
   """Prints a string heading corresponding to a cheat sheet list to stdout."""
   if format_style is None:
     format_style = FORMAT_STYLE_DEFAULT
-  if format_style is FORMAT_STYLE_1:
-    return _entry_repr_style1.heading
-  elif format_style is FORMAT_STYLE_2:
-    return _entry_repr_style2.heading
-  elif format_style is FORMAT_STYLE_3:
-    return _entry_repr_style3.heading
+  if format_style is FORMAT_STYLE_SIMPLE:
+    return _entry_repr_simple.heading
+  elif format_style is FORMAT_STYLE_FULL:
+    return _entry_repr_full.heading
   else:
     raise cheatsheet.classes.ProgrammingError(
       'display.entry_repr_heading', 'SHOULDNT HAPPEN')
@@ -77,51 +73,43 @@ def entry_repr(entry, format_style=None):
   """
   if format_style is None:
     format_style = FORMAT_STYLE_DEFAULT
-  if format_style is FORMAT_STYLE_1:
-    return _entry_repr_style1(entry)
-  elif format_style is FORMAT_STYLE_2:
-    return _entry_repr_style2(entry)
-  elif format_style is FORMAT_STYLE_3:
-    return _entry_repr_style3(entry)
+  if format_style is FORMAT_STYLE_SIMPLE:
+    return _entry_repr_simple(entry)
+  elif format_style is FORMAT_STYLE_FULL:
+    return _entry_repr_full(entry)
   else:
     raise cheatsheet.classes.ProgrammingError(
       'display.entry_repr', 'SHOULDNT HAPPEN')
 
-def _entry_repr_style1(entry):
-  """Gets the string representation of the entry."""
-  line1 = '%-3d %-10s %-20s %s' % (
-    entry.oid, entry.primary, entry.clue, ', '.join(entry.tags))
-  line2 = ' '*15 + _indent_paragraph(entry.answer, 15)
+def _repr_tags(tags):
+  return '#' + ', #'.join(tags) if tags else ''
 
-  return line1 + '\n' + line2
-_entry_repr_style1.heading = '%-3s %-10s %-20s %s' % (
-  'ID', 'Primary', 'Clues', 'Tags')
-
-def _entry_repr_style2(entry):
-  """Another option for how to represent entries.
+def _entry_repr_full(entry):
+  """Gets the string representation of the entry.
 
   This one formats like:
-  ID  primary   secondary1,secondary2,...
-      clue      answer line 1
-                answer line 2
-
-  To get a header string for this style, try _entry_repr_style2.heading
+  ID  primary   clue
+                answer ....
+                answer line 2 #tag1,#tag2
 
   Returns:
     str: a string representation of this entry.
   """
-  line1 = '%-3d %-15s %s' % (entry.oid, entry.primary, ', '.join(entry.tags))
-  line2 = '    %-15s %s' % (entry.clue, _indent_paragraph(entry.answer, 20))
-  return line1 + '\n' + line2
-_entry_repr_style2.heading = '%-3s %-15s %s' % ('ID', 'Primary', 'Tags')
+  rep = '%-3d %-10s %s\n%s\n%s' % (
+    entry.oid, entry.primary, entry.clue, entry.answer, _repr_tags(entry.tags))
+  rep = _indent_paragraph(rep, 15)
+  return rep
+  # return line1 + '\n' + line2
+_entry_repr_full.heading = '%-3s %-10s %-20s' % (
+  'ID', 'Primary', 'Clues')
 
-def _entry_repr_style3(entry):
+def _entry_repr_simple(entry):
   """Gets the string representation of the entry without tags or primary.
 
   Returns:
     str: a string representing an entry.
   """
-  line2 = '%-3d %-15s %s' % (
-    entry.oid, entry.clue, _indent_paragraph(entry.answer, 20))
+  line2 = '%-3d %-20s %s' % (
+    entry.oid, entry.clue, _indent_paragraph(entry.answer, 25))
   return line2
-_entry_repr_style3.heading = '%-3s %-15s %s' % ('ID', 'Clue', 'Answer')
+_entry_repr_simple.heading = '%-3s %-20s %s' % ('ID', 'Clue', 'Answer')

@@ -40,45 +40,6 @@ def _add_arguments_generic(parser):
     help='Manually specify a cheatsheet to work with')
 
 
-def _add_arguments_verbosity(parser):
-  """Adds argparse arguments relating to verbosity."""
-  parser.add_argument(
-    '--v0', dest='verbose', action='store_const', const=0, default=1,
-    help='Quiet mode: print nothing except errors')
-  parser.add_argument(
-    '--v1', dest='verbose', action='store_const', const=1, default=1,
-    help='Verbose level 1: prints the newly added entry')
-  parser.add_argument(
-    '--v2', dest='verbose', action='store_const', const=2, default=1,
-    help='Verbose level 2: prints the entire cheatsheet')
-
-
-def _print_results(cs, verbosity, entry=None, style=None):
-  """Prints state of system dependening on verbosity level.
-
-  At verbosity level 1, this will print entry if it exists and nothing else.
-  At verbosity level 2, this will print the entire CheatSheet.
-  At verbosity level 0, this will print nothing.
-
-  Arguments:
-    cheatsheet: CheatSheet object used during this command.
-    verbosity: integer indicating verbosity level.
-    entry: Entry object that was targetted by this command (not relevant to
-      all commands).
-    style: The format style argument specified by --style.
-  """
-  if verbosity == 0:
-    pass
-  if verbosity == 1:
-    if entry:
-      cheatsheet.display.display_entry(entry, format_style=style)
-  elif verbosity == 2:
-    cheatsheet.display.display_entries(cs.get_entries(), format_style=style)
-  else:
-    raise cheatsheet.classes.ProgrammingError(
-      'Program._print_results', 'SHOULD NEVER HAPPEN')
-
-
 class Program(object):
   """Class responsible for implementing command line front end."""
 
@@ -113,7 +74,6 @@ class Program(object):
       'answer', type=str,
       help='The full explanation of this entry. Can be as long as required')
     _add_arguments_generic(parser)
-    _add_arguments_verbosity(parser)
     args = parser.parse_args(sys.argv[2:])
 
     # Load cheatsheet, add an entry, then save the results
@@ -124,7 +84,7 @@ class Program(object):
     cheatsheet.fileio.save_cheatsheet(cs, fname=args.file)
 
     # Print the results.
-    _print_results(cs, args.verbose, entry=entry, style=args.style)
+    cheatsheet.display.display_entry(entry, format_style=args.style)
 
   def show(self):
     """Implements the 'show' command."""
@@ -174,7 +134,6 @@ class Program(object):
       '--f', dest='force', action='store_const', const=1, default=0,
       help='Force: dont ask before completing the removal')
     _add_arguments_generic(parser)
-    _add_arguments_verbosity(parser)
     args = parser.parse_args(sys.argv[2:])
 
     # Load cheat sheet
@@ -194,8 +153,10 @@ class Program(object):
     removed = cs.remove_entry(args.oid)
     cheatsheet.fileio.save_cheatsheet(cs, fname=args.file)
 
-    # Print the results.
-    _print_results(cs, args.verbose, entry=removed, style=args.style)
+    # Print the results only on force mode (otherwise user just saw item).
+    if args.force:
+      print('Removed entry:')
+      cheatsheet.display.display_entry(removed, format_style=args.style)
 
   def update(self):
     """Implements the 'update' command."""
@@ -215,20 +176,20 @@ class Program(object):
       '--answer', type=str,
       help='The full explanation of this entry. Can be as long as required')
     _add_arguments_generic(parser)
-    _add_arguments_verbosity(parser)
     args = parser.parse_args(sys.argv[2:])
 
     # Load cheat sheet
     cs = cheatsheet.fileio.load_cheatsheet(fname=args.file)
     # Update entry in local CheatSheet object.
     updated = cs.update_entry(
-      args.oid, clue=args.clue, answer=args.answer, primary=args.tags[0],
-      tags=args.tags[1])
+      args.oid, clue=args.clue, answer=args.answer,
+      primary=args.tags[0] if args.tags else None,
+      tags=args.tags[1] if args.tags else None)
     # Save CheatSheet object to file.
     cheatsheet.fileio.save_cheatsheet(cs, fname=args.file)
 
     # Print the results.
-    _print_results(cs, args.verbose, entry=updated, style=args.style)
+    cheatsheet.display.display_entry(updated, format_style=args.style)
 
 if __name__ == '__main__':
   Program()
