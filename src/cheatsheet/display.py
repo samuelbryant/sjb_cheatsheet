@@ -1,7 +1,5 @@
 """Module responsible for representing todo items and writing to terminal."""
-import os
-import textwrap
-import sys
+import common.misc
 
 
 ## Global constants that determine the format of the display output
@@ -10,35 +8,6 @@ FORMAT_STYLE_FULL = 2
 FORMAT_STYLE_DEFAULT = FORMAT_STYLE_FULL
 FORMAT_CHOICES = [FORMAT_STYLE_SIMPLE, FORMAT_STYLE_FULL]
 
-
-def prompt_yes_no(question, default=None):
-  """Asks a yes/no question and returns either True or False."""
-  prompt = (default is True and 'Y/n') or (default is False and 'y/N') or 'y/n'
-  valid = {'yes': True, 'ye': True, 'y': True, 'no': False, 'n': False}
-
-  while True:
-    choice = input(question + prompt + ': ').lower()
-
-    if not choice and default is not None:
-      return default
-    if choice in valid:
-      return valid[choice]
-    else:
-      sys.stdout.write("Invalid reponse\n")
-
-def _get_num_cols():
-  return int(os.popen('stty size', 'r').read().split()[1])
-
-def _indent_paragraph(paragraph, indent_size):
-  width = _get_num_cols() - indent_size
-
-  # Have to treat new lines specially
-  lines = paragraph.split('\n')
-  indented = [textwrap.wrap(line, width=width) for line in lines]
-  indented = [y for x in indented for y in x]
-
-  prefix = '\n' + (' ' * indent_size)
-  return prefix.join(indented)
 
 def display_entry(entry, format_style=None):
   """Prints a string representation of a cheat sheet entry to stdout."""
@@ -95,7 +64,7 @@ def _entry_repr_full(entry):
   """
   rep = '%-3d %-10s %s\n%s\n%s' % (
     entry.oid, entry.primary, entry.clue, entry.answer, _repr_tags(entry.tags))
-  rep = _indent_paragraph(rep, 15)
+  rep = common.misc.indent_paragraph(rep, 15)
   return rep
   # return line1 + '\n' + line2
 _entry_repr_full.heading = '%-3s %-10s %-20s' % (
@@ -108,6 +77,6 @@ def _entry_repr_simple(entry):
     str: a string representing an entry.
   """
   line2 = '%-3d %-20s %s' % (
-    entry.oid, entry.clue, _indent_paragraph(entry.answer, 25))
+    entry.oid, entry.clue, common.misc.indent_paragraph(entry.answer, 25))
   return line2
 _entry_repr_simple.heading = '%-3s %-20s %s' % ('ID', 'Clue', 'Answer')

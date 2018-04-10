@@ -40,15 +40,11 @@ def save_cheatsheet(cs, fname=None):
   Arguments:
     fname: str an optional file name to read the cheat sheet from.
   """
-  entries_js = []
-  for entry in cs.items:
-    entries_js.append(_encode_entry(entry))
-
   top_json = {
     'cheatsheet': {
       'version': cs.version,
       'modified_date': cs.modified_date,
-      'entries': entries_js
+      'entries': [_encode_entry(e) for e in cs.items]
     }
   }
 

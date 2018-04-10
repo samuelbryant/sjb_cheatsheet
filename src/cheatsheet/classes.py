@@ -61,13 +61,12 @@ class Entry(common.base.Item):
 
   def __eq__(self, other):
     """Returns true if self and other have identical fields."""
-    if not super().__eq__(self, other): return False
+    if not super().__eq__(other): return False
     if self.clue != other.clue: return False
     if self.primary != other.primary: return False
     if self.tags != other.tags: return False
     if self.answer != other.answer: return False
     return True
-
 
   def validate(self):
     """Validates that the values of this item are sensible.
@@ -143,7 +142,7 @@ class CheatSheet(common.base.ItemList):
       Entry: The removed entry object.
 
     Raises:
-      common.base.InvalidIDError: If no entry has a matching oid.
+      common.base.InvalidIDError: If no item has a matching oid.
     """
     removed = super().remove_item(oid)
     self._recompute_object_maps()
@@ -160,7 +159,7 @@ class CheatSheet(common.base.ItemList):
       Entry: The newly updated entry object.
 
     Raises:
-      common.base.InvalidIDError: If no entry has a matching oid.
+      common.base.InvalidIDError: If no item has a matching oid.
     """
     item = self.get_item(oid)
     original_item = copy.deepcopy(item)
@@ -192,15 +191,15 @@ class CheatSheet(common.base.ItemList):
       new_elts.add(primary)
     return new_elts
 
-  def _update_object_maps(self, entry):
-    """Updates meta object maps like tag_set to reflect contents of entry."""
-    if entry.primary not in self._primary_map.keys():
-      self._primary_map[entry.primary] = []
-    self._primary_map[entry.primary].append(entry)
+  def _update_object_maps(self, item):
+    """Updates meta objects to reflect the contents of item."""
+    if item.primary not in self._primary_map.keys():
+      self._primary_map[item.primary] = []
+    self._primary_map[item.primary].append(item)
 
-    for tag in entry.tags:
+    for tag in item.tags:
       self._tag_set.add(tag)
-    self._tag_set.add(entry.primary)
+    self._tag_set.add(item.primary)
 
   def _recompute_object_maps(self):
     """Recomputes all meta object maps like tag_set, primary_to_entries, etc.

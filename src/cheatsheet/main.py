@@ -6,6 +6,7 @@ import operator
 import cheatsheet.classes
 import cheatsheet.display
 import cheatsheet.fileio
+import common.misc
 
 
 PROGRAM = 'sjb_cheatsheet'
@@ -93,7 +94,7 @@ class Program(object):
         'The following tags are not present in the database: ' + \
         ', '.join(new_elts) + \
         '\nAre you sure you want to add this element? ')
-      cont = cheatsheet.display.prompt_yes_no(question, default=True)
+      cont = common.misc.prompt_yes_no(question, default=True)
       if not cont:
         exit(0)
 
@@ -190,7 +191,7 @@ class Program(object):
         'The entry given by oid '+str(args.oid)+' is:\n' + \
         cheatsheet.display.entry_repr(entry, format_style=args.style) + \
         '\nAre you sure you want to delete it? ')
-      cont = cheatsheet.display.prompt_yes_no(question, default=False)
+      cont = common.misc.prompt_yes_no(question, default=False)
       if not cont:
         exit(0)
 
