@@ -2,7 +2,7 @@
 import os
 import textwrap
 import sys
-import cheatsheet.classes
+
 
 ## Global constants that determine the format of the display output
 FORMAT_STYLE_SIMPLE = 1
@@ -59,8 +59,7 @@ def entry_repr_heading(format_style=None):
   elif format_style is FORMAT_STYLE_FULL:
     return _entry_repr_full.heading
   else:
-    raise cheatsheet.classes.ProgrammingError(
-      'display.entry_repr_heading', 'SHOULDNT HAPPEN')
+    raise Exception('This should never happen')
 
 def entry_repr(entry, format_style=None):
   """Returns a string reprentation of a cheat sheet entry.
@@ -78,8 +77,7 @@ def entry_repr(entry, format_style=None):
   elif format_style is FORMAT_STYLE_FULL:
     return _entry_repr_full(entry)
   else:
-    raise cheatsheet.classes.ProgrammingError(
-      'display.entry_repr', 'SHOULDNT HAPPEN')
+    raise Exception('This should never happen')
 
 def _repr_tags(tags):
   return '#' + ', #'.join(tags) if tags else ''

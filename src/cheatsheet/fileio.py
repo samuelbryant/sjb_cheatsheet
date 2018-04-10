@@ -41,7 +41,7 @@ def save_cheatsheet(cs, fname=None):
     fname: str an optional file name to read the cheat sheet from.
   """
   entries_js = []
-  for entry in cs.entries:
+  for entry in cs.items:
     entries_js.append(_encode_entry(entry))
 
   top_json = {
@@ -52,7 +52,7 @@ def save_cheatsheet(cs, fname=None):
     }
   }
 
-  fname = fname or cs.src_fname or _get_default_cheatsheet_file()
+  fname = fname or cs.source_filename or _get_default_cheatsheet_file()
   json_file = open(fname, "w")
 
   json_file.write(json.dumps(top_json, indent=2))
@@ -68,22 +68,20 @@ def load_cheatsheet(fname=None):
   """
   fname = fname or _get_default_cheatsheet_file()
 
-  # Attempt to open
+  # If file doesn't exist, return a new blank cheat sheet.
   if not os.path.isfile(fname):
     warnings.warn('no cheatsheet file found', UserWarning)
-    return cheatsheet.classes.CheatSheet(src_fname=fname)
+    return cheatsheet.classes.CheatSheet(source_fname=fname)
 
   json_file = open(fname)
   ob = json.load(json_file)['cheatsheet']
   modified_date = ob['modified_date'] if 'modified_date' in ob else None
 
-  # Create new blank cs book.
-  cs = cheatsheet.classes.CheatSheet(
-    src_fname=fname, modified_date=modified_date)
 
-  # Add entries to CheatSheet
+  cs = cheatsheet.classes.CheatSheet(
+    source_fname=fname, modified_date=modified_date)
   for entry_json in ob['entries']:
     entry = _decode_entry(entry_json)
-    cs.add_entry(entry, initial_load=True)
+    cs.add_item(entry, initial_load=True)
 
   return cs

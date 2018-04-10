@@ -97,7 +97,7 @@ class Program(object):
       if not cont:
         exit(0)
 
-    cs.add_entry(entry)
+    cs.add_item(entry)
     cheatsheet.fileio.save_cheatsheet(cs, fname=args.file)
 
     # Print the results.
@@ -113,9 +113,9 @@ class Program(object):
 
     cs = cheatsheet.fileio.load_cheatsheet(fname=args.file)
 
-    primary_map = cs.primary_to_entries
+    primary_map = cs.primary_map
     tag_set = cs.tag_set
-    entries = cs.entries
+    entries = cs.items
     primary_count = {key: len(primary_map[key]) for key in primary_map}
     sorted_primary = sorted(
       primary_count.items(), key=operator.itemgetter(1), reverse=True)
@@ -160,7 +160,8 @@ class Program(object):
 
     # Load cheat sheet, find matching entries, and print
     cs = cheatsheet.fileio.load_cheatsheet(fname=args.file)
-    entries = cs.get_entries(args.andor, tags=args.tags)
+    matcher = cheatsheet.classes.EntryMatcherTags(args.tags, args.andor)
+    entries = cs.query_items(matcher)
     if entries:
       cheatsheet.display.display_entries(entries, format_style=args.style)
     else:
@@ -183,7 +184,7 @@ class Program(object):
     cs = cheatsheet.fileio.load_cheatsheet(fname=args.file)
 
     # If not in force mode, ask user before proceeding.
-    entry = cs.get_entry(args.oid)
+    entry = cs.get_item(args.oid)
     if not args.force:
       question = (
         'The entry given by oid '+str(args.oid)+' is:\n' + \
@@ -193,7 +194,7 @@ class Program(object):
       if not cont:
         exit(0)
 
-    removed = cs.remove_entry(args.oid)
+    removed = cs.remove_item(args.oid)
     cheatsheet.fileio.save_cheatsheet(cs, fname=args.file)
 
     # Print the results only on force mode (otherwise user just saw item).
@@ -224,7 +225,7 @@ class Program(object):
     # Load cheat sheet
     cs = cheatsheet.fileio.load_cheatsheet(fname=args.file)
     # Update entry in local CheatSheet object.
-    updated = cs.update_entry(
+    updated = cs.update_item(
       args.oid, clue=args.clue, answer=args.answer,
       primary=args.tags[0] if args.tags else None,
       tags=args.tags[1] if args.tags else None)
