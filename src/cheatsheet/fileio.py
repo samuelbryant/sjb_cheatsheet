@@ -26,8 +26,8 @@ def _decode_entry(json_object):
 
 def _get_default_cheatsheet_file():
   if 'XDG_DATA_HOME' in os.environ:
-    return os.environ['XDG_DATA_HOME']+'/'+'sjb_cheatsheet/cheatsheet.json'
-  return os.environ['HOME']+'/.local/share/sjb_cheatsheet/cheatsheet.json'
+    return os.environ['XDG_DATA_HOME']+'/'+'sjb/cheatsheet/cheatsheet.json'
+  return os.environ['HOME']+'/.local/share/sjb/cheatsheet/cheatsheet.json'
 
 def save_cheatsheet(cs, fname=None):
   """Saves a cheatsheet object to a json file.

@@ -39,7 +39,7 @@ For example, in my setup, cheatsheet is located at ~/bin/code_python/cheatsheet 
   `PYTHONPATH="${PYTHONPATH}:/home/$USER/bin/code_python"`
 
 2. The data directory must be setup.
-By default this program reads/writes to the directory '~/.local/share/sjb_cheatsheet'. The user needs to manually create this folder.
+By default this program reads/writes to the directory '~/.local/share/sjb/cheatsheet'. The user needs to manually create this folder.
 
 3. Finally, add an alias to the program in .bash_aliases or whereever:
 `alias sjb_cheatsheet='/path/to/directory/cheatsheet/main.py'`
