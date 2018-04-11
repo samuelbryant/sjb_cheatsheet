@@ -2,8 +2,8 @@
 import os
 import json
 import warnings
-import cheatsheet.classes
-import cheatsheet.display
+import sjb.cs.classes
+import sjb.cs.display
 
 
 def _encode_entry(entry):
@@ -17,7 +17,7 @@ def _encode_entry(entry):
   }
 
 def _decode_entry(json_object):
-  return(cheatsheet.classes.Entry(
+  return(sjb.cs.classes.Entry(
     clue=json_object['clue'],
     answer=json_object['answer'],
     primary=json_object['primary'],
@@ -67,14 +67,14 @@ def load_cheatsheet(fname=None):
   # If file doesn't exist, return a new blank cheat sheet.
   if not os.path.isfile(fname):
     warnings.warn('no cheatsheet file found', UserWarning)
-    return cheatsheet.classes.CheatSheet(source_fname=fname)
+    return sjb.cs.classes.CheatSheet(source_fname=fname)
 
   json_file = open(fname)
   ob = json.load(json_file)['cheatsheet']
   modified_date = ob['modified_date'] if 'modified_date' in ob else None
 
 
-  cs = cheatsheet.classes.CheatSheet(
+  cs = sjb.cs.classes.CheatSheet(
     source_fname=fname, modified_date=modified_date)
   for entry_json in ob['entries']:
     entry = _decode_entry(entry_json)

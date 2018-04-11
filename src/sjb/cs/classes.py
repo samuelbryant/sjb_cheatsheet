@@ -1,6 +1,6 @@
 """Module containing all core class definitions for this program."""
 import copy
-import common.base
+import sjb.common.base
 
 
 ## Global constants which determine search method.
@@ -8,7 +8,7 @@ SEARCH_AND = 0
 SEARCH_OR = 1
 
 
-class EntryMatcherTags(common.base.ItemMatcher):
+class EntryMatcherTags(sjb.common.base.ItemMatcher):
   """Class that matches entries using their tags."""
 
   def __init__(self, tags, andor=SEARCH_OR):
@@ -41,11 +41,11 @@ class EntryMatcherTags(common.base.ItemMatcher):
           return True
       return False
     else:
-      raise common.base.IllegalStateError(
+      raise sjb.common.base.IllegalStateError(
         'Entry.matches', 'invalid andor argument '+str(self.andor))
 
 
-class Entry(common.base.Item):
+class Entry(sjb.common.base.Item):
   """Class representing an entry in a cheat sheet"""
 
   def __init__(self, clue, answer, primary, tags, oid=None):
@@ -77,23 +77,23 @@ class Entry(common.base.Item):
     manipulations made to this item after initialization were valid.
 
     Raises:
-      common.base.ValidationError: If validation fails
+      sjb.common.base.ValidationError: If validation fails
     """
     super().validate()
     if not self.clue or not isinstance(self.clue, str):
-      raise common.base.ValidationError('Bad entry clue: '+str(self.clue))
+      raise sjb.common.base.ValidationError('Bad entry clue: '+str(self.clue))
     if not self.primary or not isinstance(self.primary, str):
-      raise common.base.ValidationError('Bad primary: '+str(self.primary))
+      raise sjb.common.base.ValidationError('Bad primary: '+str(self.primary))
     if not self.answer or not isinstance(self.answer, str):
-      raise common.base.ValidationError('Bad answer: '+str(self.answer))
+      raise sjb.common.base.ValidationError('Bad answer: '+str(self.answer))
     if not isinstance(self.tags, set):
-      raise common.base.ValidationError('Bad tags: '+str(self.tags))
+      raise sjb.common.base.ValidationError('Bad tags: '+str(self.tags))
 
     if self.oid is not None and not isinstance(self.oid, int):
-      raise common.base.ValidationError('Bad oid: '+str(self.oid))
+      raise sjb.common.base.ValidationError('Bad oid: '+str(self.oid))
 
 
-class CheatSheet(common.base.ItemList):
+class CheatSheet(sjb.common.base.ItemList):
   """Class that represents an entire cheat sheet.
 
   It is typically read from a file at the start of a session and written to a
@@ -142,7 +142,7 @@ class CheatSheet(common.base.ItemList):
       Entry: The removed entry object.
 
     Raises:
-      common.base.InvalidIDError: If no item has a matching oid.
+      sjb.common.base.InvalidIDError: If no item has a matching oid.
     """
     removed = super().remove_item(oid)
     self._recompute_object_maps()
@@ -159,7 +159,7 @@ class CheatSheet(common.base.ItemList):
       Entry: The newly updated entry object.
 
     Raises:
-      common.base.InvalidIDError: If no item has a matching oid.
+      sjb.common.base.InvalidIDError: If no item has a matching oid.
     """
     item = self.get_item(oid)
     original_item = copy.deepcopy(item)

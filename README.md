@@ -1,4 +1,6 @@
 # Overview
+A simple CRUD command-line program for working with 'cheat sheets'
+
 **This program is not designed to be usable by anyone except me, yet** - see the Installation section for more details.
 
 sjb_cheatsheet is a simple command-line program to add entries to a cheat sheet and display them in an organized manner. 

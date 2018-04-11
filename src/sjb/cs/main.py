@@ -3,10 +3,10 @@
 import sys
 import argparse
 import operator
-import cheatsheet.classes
-import cheatsheet.display
-import cheatsheet.fileio
-import common.misc
+import sjb.cs.classes
+import sjb.cs.display
+import sjb.cs.fileio
+import sjb.common.misc
 
 
 PROGRAM = 'sjb_cheatsheet'
@@ -36,7 +36,7 @@ def _add_arguments_generic(parser):
   """Adds argparse arguments that apply universally to all commands."""
   parser.add_argument(
     '--style', type=int,
-    choices=cheatsheet.display.FORMAT_CHOICES,
+    choices=sjb.cs.display.FORMAT_CHOICES,
     help='Specifies which format style is used when displaying entries.')
   parser.add_argument(
     '--file', type=str,
@@ -83,8 +83,8 @@ class Program(object):
     args = parser.parse_args(sys.argv[2:])
 
     # Load cheatsheet, add an entry, then save the results
-    cs = cheatsheet.fileio.load_cheatsheet(fname=args.file)
-    entry = cheatsheet.classes.Entry(
+    cs = sjb.cs.fileio.load_cheatsheet(fname=args.file)
+    entry = sjb.cs.classes.Entry(
       args.clue, args.answer, primary=args.tags[0], tags=args.tags[1])
 
     # Check if any tag or the primary is new and prompt user before continuing.
@@ -94,15 +94,15 @@ class Program(object):
         'The following tags are not present in the database: ' + \
         ', '.join(new_elts) + \
         '\nAre you sure you want to add this element? ')
-      cont = common.misc.prompt_yes_no(question, default=True)
+      cont = sjb.common.misc.prompt_yes_no(question, default=True)
       if not cont:
         exit(0)
 
     cs.add_item(entry)
-    cheatsheet.fileio.save_cheatsheet(cs, fname=args.file)
+    sjb.cs.fileio.save_cheatsheet(cs, fname=args.file)
 
     # Print the results.
-    cheatsheet.display.display_entry(entry, format_style=args.style)
+    sjb.cs.display.display_entry(entry, format_style=args.style)
 
   def info(self):
     """Implements the 'info' command."""
@@ -112,7 +112,7 @@ class Program(object):
     _add_arguments_generic(parser)
     args = parser.parse_args(sys.argv[2:])
 
-    cs = cheatsheet.fileio.load_cheatsheet(fname=args.file)
+    cs = sjb.cs.fileio.load_cheatsheet(fname=args.file)
 
     primary_map = cs.primary_map
     tag_set = cs.tag_set
@@ -142,13 +142,13 @@ class Program(object):
       help='Only show entries which match this comma separated list of tags')
     parser.add_argument(
       '--or', dest='andor', action='store_const',
-      const=cheatsheet.classes.SEARCH_OR,
-      default=cheatsheet.classes.SEARCH_OR,
+      const=sjb.cs.classes.SEARCH_OR,
+      default=sjb.cs.classes.SEARCH_OR,
       help='Show entries which match ANY of the given conditions')
     parser.add_argument(
       '--and', dest='andor', action='store_const',
-      const=cheatsheet.classes.SEARCH_AND,
-      default=cheatsheet.classes.SEARCH_OR,
+      const=sjb.cs.classes.SEARCH_AND,
+      default=sjb.cs.classes.SEARCH_OR,
       help='Only show entries which match ALL of the given conditions')
     _add_arguments_generic(parser)
     args = parser.parse_args(sys.argv[2:])
@@ -157,14 +157,14 @@ class Program(object):
     # filter, then we display the simple style. e.g. if I type show 'bash', I
     # dont want to see 'bash' in every entry.
     if not args.style and args.tags:
-      args.style = cheatsheet.display.FORMAT_STYLE_SIMPLE
+      args.style = sjb.cs.display.FORMAT_STYLE_SIMPLE
 
     # Load cheat sheet, find matching entries, and print
-    cs = cheatsheet.fileio.load_cheatsheet(fname=args.file)
-    matcher = cheatsheet.classes.EntryMatcherTags(args.tags, args.andor)
+    cs = sjb.cs.fileio.load_cheatsheet(fname=args.file)
+    matcher = sjb.cs.classes.EntryMatcherTags(args.tags, args.andor)
     entries = cs.query_items(matcher)
     if entries:
-      cheatsheet.display.display_entries(entries, format_style=args.style)
+      sjb.cs.display.display_entries(entries, format_style=args.style)
     else:
       print('No entries found')
 
@@ -182,26 +182,26 @@ class Program(object):
     args = parser.parse_args(sys.argv[2:])
 
     # Load cheat sheet
-    cs = cheatsheet.fileio.load_cheatsheet(fname=args.file)
+    cs = sjb.cs.fileio.load_cheatsheet(fname=args.file)
 
     # If not in force mode, ask user before proceeding.
     entry = cs.get_item(args.oid)
     if not args.force:
       question = (
         'The entry given by oid '+str(args.oid)+' is:\n' + \
-        cheatsheet.display.entry_repr(entry, format_style=args.style) + \
+        sjb.cs.display.entry_repr(entry, format_style=args.style) + \
         '\nAre you sure you want to delete it? ')
-      cont = common.misc.prompt_yes_no(question, default=False)
+      cont = sjb.common.misc.prompt_yes_no(question, default=False)
       if not cont:
         exit(0)
 
     removed = cs.remove_item(args.oid)
-    cheatsheet.fileio.save_cheatsheet(cs, fname=args.file)
+    sjb.cs.fileio.save_cheatsheet(cs, fname=args.file)
 
     # Print the results only on force mode (otherwise user just saw item).
     if args.force:
       print('Removed entry:')
-      cheatsheet.display.display_entry(removed, format_style=args.style)
+      sjb.cs.display.display_entry(removed, format_style=args.style)
 
   def update(self):
     """Implements the 'update' command."""
@@ -224,17 +224,17 @@ class Program(object):
     args = parser.parse_args(sys.argv[2:])
 
     # Load cheat sheet
-    cs = cheatsheet.fileio.load_cheatsheet(fname=args.file)
+    cs = sjb.cs.fileio.load_cheatsheet(fname=args.file)
     # Update entry in local CheatSheet object.
     updated = cs.update_item(
       args.oid, clue=args.clue, answer=args.answer,
       primary=args.tags[0] if args.tags else None,
       tags=args.tags[1] if args.tags else None)
     # Save CheatSheet object to file.
-    cheatsheet.fileio.save_cheatsheet(cs, fname=args.file)
+    sjb.cs.fileio.save_cheatsheet(cs, fname=args.file)
 
     # Print the results.
-    cheatsheet.display.display_entry(updated, format_style=args.style)
+    sjb.cs.display.display_entry(updated, format_style=args.style)
 
 if __name__ == '__main__':
   Program()

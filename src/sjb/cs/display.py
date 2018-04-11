@@ -1,5 +1,5 @@
 """Module responsible for representing todo items and writing to terminal."""
-import common.misc
+import sjb.common.misc
 
 
 ## Global constants that determine the format of the display output
@@ -64,7 +64,7 @@ def _entry_repr_full(entry):
   """
   rep = '%-3d %-10s %s\n%s\n%s' % (
     entry.oid, entry.primary, entry.clue, entry.answer, _repr_tags(entry.tags))
-  rep = common.misc.indent_paragraph(rep, 15)
+  rep = sjb.common.misc.indent_paragraph(rep, 15)
   return rep
   # return line1 + '\n' + line2
 _entry_repr_full.heading = '%-3s %-10s %-20s' % (
@@ -77,6 +77,6 @@ def _entry_repr_simple(entry):
     str: a string representing an entry.
   """
   line2 = '%-3d %-20s %s' % (
-    entry.oid, entry.clue, common.misc.indent_paragraph(entry.answer, 25))
+    entry.oid, entry.clue, sjb.common.misc.indent_paragraph(entry.answer, 25))
   return line2
 _entry_repr_simple.heading = '%-3s %-20s %s' % ('ID', 'Clue', 'Answer')
