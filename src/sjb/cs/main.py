@@ -9,9 +9,9 @@ import sjb.cs.fileio
 import sjb.common.misc
 
 
-PROGRAM = 'sjb_cheatsheet'
+PROGRAM = 'sjb-cheatsheet'
 USAGE = '''\
-sjb_cheatsheet command [<args>]
+sjb-cheatsheet command [<args>]
 
 Where command can be:
   add     Add a new entry to the cheatsheet
@@ -236,5 +236,6 @@ class Program(object):
     # Print the results.
     sjb.cs.display.display_entry(updated, format_style=args.style)
 
-if __name__ == '__main__':
+def main():
+  """Main entrypoint for this application. Called from the frontend script."""
   Program()
