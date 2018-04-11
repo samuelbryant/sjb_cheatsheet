@@ -1,6 +1,8 @@
 # Overview
 A simple CRUD command-line program for working with 'cheat sheets'
 
+This project is licensed under the MIT license.
+
 sjb-cheatsheet is a simple command-line program to add entries to a cheat sheet and display them in an organized manner. 
 Similar to 'git' this program has subcommands to interact with the cheatsheet. The basic subcommands are 'add', 'show', 'remove', and 'update'
 
@@ -43,3 +45,21 @@ However, I have written a crude script that should more or less work provided th
 2. run `./install.sh` as a regular user
 
 3. create the data directory using `mkdir -p ~/.local/share/sjb/cheatsheet`
+
+# Developing
+There is a script `setup_dev.sh` which sets up a virtual environment. This causes `sjb-cheatsheet` to execute the local code in `src` instead of the code installed on the system.
+
+To setup the development environment
+~~~
+$ cd <this directory>
+$ . setup_dev.sh
+~~~
+where `<this directory>` is the directory containing this README file.
+
+To leave the development environment just type:
+~~~~
+$ deactivate
+~~~~
+
+Warning: the development environment still uses the same data files as the real environment. This will eventually be fixed.
+

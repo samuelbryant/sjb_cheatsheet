@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 """Module responsible for implementing the command line front end."""
 import sys
 import argparse
@@ -236,6 +235,6 @@ class Program(object):
     # Print the results.
     sjb.cs.display.display_entry(updated, format_style=args.style)
 
-def main():
+def main(test=False):
   """Main entrypoint for this application. Called from the frontend script."""
   Program()

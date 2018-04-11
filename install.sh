@@ -10,7 +10,7 @@ COMMON_LIB_NAME="common"
 
 # Frontend settings
 TARGET_FRONTEND_SCRIPT="/usr/local/bin/sjb-cheatsheet"
-LOCAL_FRONTEND_SCRIPT="./bin/sjb-cheatsheet.py"
+LOCAL_FRONTEND_SCRIPT="./bin/sjb-cheatsheet"
 
 # Make sure we are not running as sudo user:
 if [ "$EUID" -eq 0 ]; then
