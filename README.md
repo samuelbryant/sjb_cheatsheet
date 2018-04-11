@@ -14,6 +14,35 @@ Each cheatsheet entry has four components:
 
 The basic idea is to centralize all 'cheat sheet' like notes into a single file. Then to see all notes concerning a single topic you can filter them by the primary tag or secondary tags.
 
+# Installation
+This program is in pre-alpha and is not using any deployment tools so I make zero guarantees about installation.
+
+However, I have written a crude script that should more or less work provided the user has `python3.6` installed in a linux environment and has all of the required python dependencies. Since these dependencies are subject to change, and this is my first time writing a deployed python app, I have not bothered to record them or incorporate them into the install script. In the future I hope to fix this.
+
+## Instructions
+~~~~
+$ cd <this directory>
+$ ./install.sh
+$ mkdir -p ~/.local/share/sjb/cheatsheet
+~~~~
+where `<this directory>` is the directory containing this README file. Also it's important that you run `./install.sh` as a regular user (dont use sudo).
+
+# Developing
+There is a script `setup_dev.sh` which sets up a virtual environment. This causes `sjb-cheatsheet` to execute the local code in `src` instead of the code installed on the system.
+
+To enter the development environment:
+~~~
+$ cd <this directory>
+$ . setup_dev.sh
+~~~
+where `<this directory>` is the directory containing this README file.
+
+To leave the development environment just type:
+~~~~
+$ deactivate
+~~~~
+**Warning**: the development environment still uses the same data files as the real environment. This will eventually be fixed.
+
 # Usage
 See `sjb-cheatsheet -h` for more information. The most basic usage of this program could consist of just the 'add' and 'show' commands. 
 
@@ -32,34 +61,3 @@ $ sjb-cheatsheet show --tags python
 2  get user input   In python2, raw_input() is a simple way to get user
                     input. In python3, input(msg) is preferred.
 ~~~~
-
-# Installation
-This program is in pre-alpha and is not using any deployment tools so I make zero guarantees about installation.
-
-However, I have written a crude script that should more or less work provided the user has `python3.6` installed in a linux environment and has all of the required python dependencies. Since these dependencies are subject to change, and this is my first time writing a deployed python app, I have not bothered to record them or incorporate them into the install script. In the future I hope to fix this.
-
-## Instructions
-
-1. cd into the directory containing this file. 
-
-2. run `./install.sh` as a regular user
-
-3. create the data directory using `mkdir -p ~/.local/share/sjb/cheatsheet`
-
-# Developing
-There is a script `setup_dev.sh` which sets up a virtual environment. This causes `sjb-cheatsheet` to execute the local code in `src` instead of the code installed on the system.
-
-To setup the development environment
-~~~
-$ cd <this directory>
-$ . setup_dev.sh
-~~~
-where `<this directory>` is the directory containing this README file.
-
-To leave the development environment just type:
-~~~~
-$ deactivate
-~~~~
-
-Warning: the development environment still uses the same data files as the real environment. This will eventually be fixed.
-
