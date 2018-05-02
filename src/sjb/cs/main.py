@@ -37,9 +37,15 @@ def _add_arguments_generic(parser):
     '--style', type=int,
     choices=sjb.cs.display.FORMAT_CHOICES,
     help='Specifies which format style is used when displaying entries.')
-  parser.add_argument(
-    '--file', type=str,
-    help='Manually specify a cheatsheet to work with')
+
+  # Arguments specifying the list file to work with
+  list_group = parser.add_mutually_exclusive_group()
+  list_group.add_argument(
+    '--list', type=str,
+    help='The short name of the cheatsheet file to read and write from. This is the local file name without an extension. The cheatsheet file is assumed to be in the default data directory for this application.')
+  list_group.add_argument(
+    '--listpath', type=str,
+    help='The full path name of the cheatsheet file to read and write from')
 
 
 class Program(object):
@@ -76,13 +82,13 @@ class Program(object):
       'answer', type=str,
       help='The full explanation of this entry. Can be as long as required')
     parser.add_argument(
-      '--f', dest='force', action='store_const', const=1, default=0,
+      '--force', dest='force', action='store_const', const=1, default=0,
       help='Force: doesnt ask before adding new tags or primary entries')
     _add_arguments_generic(parser)
     args = parser.parse_args(sys.argv[2:])
 
     # Load cheatsheet, add an entry, then save the results
-    cs = sjb.cs.fileio.load_cheatsheet(fname=args.file)
+    cs = sjb.cs.fileio.load_cheatsheet(list=args.list, listpath=args.listpath)
     entry = sjb.cs.classes.Entry(
       args.clue, args.answer, primary=args.tags[0], tags=args.tags[1])
 
@@ -98,7 +104,7 @@ class Program(object):
         exit(0)
 
     cs.add_item(entry)
-    sjb.cs.fileio.save_cheatsheet(cs, fname=args.file)
+    sjb.cs.fileio.save_cheatsheet(cs, list=args.list, listpath=args.listpath)
 
     # Print the results.
     sjb.cs.display.display_entry(entry, format_style=args.style)
@@ -111,7 +117,7 @@ class Program(object):
     _add_arguments_generic(parser)
     args = parser.parse_args(sys.argv[2:])
 
-    cs = sjb.cs.fileio.load_cheatsheet(fname=args.file)
+    cs = sjb.cs.fileio.load_cheatsheet(list=args.list, listpath=args.listpath)
 
     primary_map = cs.primary_map
     tag_set = cs.tag_set
@@ -159,7 +165,7 @@ class Program(object):
       args.style = sjb.cs.display.FORMAT_STYLE_SIMPLE
 
     # Load cheat sheet, find matching entries, and print
-    cs = sjb.cs.fileio.load_cheatsheet(fname=args.file)
+    cs = sjb.cs.fileio.load_cheatsheet(list=args.list, listpath=args.listpath)
     matcher = sjb.cs.classes.EntryMatcherTags(args.tags, args.andor)
     entries = cs.query_items(matcher)
     if entries:
@@ -175,13 +181,13 @@ class Program(object):
     parser.add_argument(
       'oid', type=int, help='ID of the entry you wish to delete')
     parser.add_argument(
-      '--f', dest='force', action='store_const', const=1, default=0,
+      '--force', dest='force', action='store_const', const=1, default=0,
       help='Force: dont ask before completing the removal')
     _add_arguments_generic(parser)
     args = parser.parse_args(sys.argv[2:])
 
     # Load cheat sheet
-    cs = sjb.cs.fileio.load_cheatsheet(fname=args.file)
+    cs = sjb.cs.fileio.load_cheatsheet(list=args.list, listpath=args.listpath)
 
     # If not in force mode, ask user before proceeding.
     entry = cs.get_item(args.oid)
@@ -195,7 +201,7 @@ class Program(object):
         exit(0)
 
     removed = cs.remove_item(args.oid)
-    sjb.cs.fileio.save_cheatsheet(cs, fname=args.file)
+    sjb.cs.fileio.save_cheatsheet(cs, list=args.list, listpath=args.listpath)
 
     # Print the results only on force mode (otherwise user just saw item).
     if args.force:
@@ -223,14 +229,14 @@ class Program(object):
     args = parser.parse_args(sys.argv[2:])
 
     # Load cheat sheet
-    cs = sjb.cs.fileio.load_cheatsheet(fname=args.file)
+    cs = sjb.cs.fileio.load_cheatsheet(list=args.list, listpath=args.listpath)
     # Update entry in local CheatSheet object.
     updated = cs.update_item(
       args.oid, clue=args.clue, answer=args.answer,
       primary=args.tags[0] if args.tags else None,
       tags=args.tags[1] if args.tags else None)
     # Save CheatSheet object to file.
-    sjb.cs.fileio.save_cheatsheet(cs, fname=args.file)
+    sjb.cs.fileio.save_cheatsheet(cs, list=args.list, listpath=args.listpath)
 
     # Print the results.
     sjb.cs.display.display_entry(updated, format_style=args.style)

@@ -6,6 +6,26 @@ import sjb.cs.classes
 import sjb.cs.display
 
 
+DEFAULT_LIST_FILE='cheatsheet'
+
+def _get_user_data_dir():
+  """Gets the default dir where applications can store data for this user."""
+  if 'XDG_DATA_HOME' in os.environ:
+    return os.environ['XDG_DATA_HOME']
+  return os.path.join(os.environ['HOME'], '.local', 'share')
+
+def _get_app_data_dir():
+  """Gets the default dir for this application's data for this user."""
+  return os.path.join(_get_user_data_dir(), 'sjb', 'cheatsheet')
+
+def _get_default_list_file(list=None):
+  """Gets the full pathname of the cheatsheet file named list.
+
+  Note: list should not have an extension.
+  """
+  list = list or DEFAULT_LIST_FILE
+  return os.path.join(_get_app_data_dir(), list + '.json')
+
 def _encode_entry(entry):
   entry.validate()
   return {
@@ -24,22 +44,33 @@ def _decode_entry(json_object):
     tags=set(json_object['tags']),
     oid=json_object['oid']))
 
-def _get_default_cheatsheet_file():
-  if 'XDG_DATA_HOME' in os.environ:
-    return os.environ['XDG_DATA_HOME']+'/'+'sjb/cheatsheet/cheatsheet.json'
-  return os.environ['HOME']+'/.local/share/sjb/cheatsheet/cheatsheet.json'
-
-def save_cheatsheet(cs, fname=None):
-  """Saves a cheatsheet object to a json file.
-
-  This attempts to save the CheatSheet object cs as a file by first looking at:
-    1) the given file name string fname
-    2) the file that the CheatSheet object was originally read from
-    3) the default file stored in a standard xdg linux manner.
+def save_cheatsheet(cs, list=None, listpath=None):
+  """Saves a cheatsheet list to a json file.
 
   Arguments:
-    fname: str an optional file name to read the cheat sheet from.
+    list: str An optional local list name to save the cheatsheet list as. The 
+      resulting file is saved in the default application directory with the
+      local file name 'list.json'. This argument is mututally exclusive with 
+      listpath.
+    listpath: str An optional full path name to save the cheatsheet list to.
+      This argument is mututally exclusive with listpath.
+
+  Raises:
+    Exception: If both list and listpath are given.
   """
+  if list and listpath:
+    raise Exception(
+      'Cannot set both list and listpath args (this should never happen')
+
+  # First check list/listpath arguments, then try the file that the cheatsheet 
+  # was read from. If none of those exist, use the default list file.
+  # TODO: reconsider this logic. Is this really the best behavior?
+  if list:
+    fname = _get_default_list_file(list=list)
+  else:
+    fname = listpath or cs.source_filename or _get_default_list_file()
+
+
   top_json = {
     'cheatsheet': {
       'version': cs.version,
@@ -48,21 +79,33 @@ def save_cheatsheet(cs, fname=None):
     }
   }
 
-  fname = fname or cs.source_filename or _get_default_cheatsheet_file()
+  fname = fname or cs.source_filename or _get_default_list_file()
   json_file = open(fname, "w")
 
   json_file.write(json.dumps(top_json, indent=2))
 
-def load_cheatsheet(fname=None):
+def load_cheatsheet(list=None, listpath=None):
   """Loads a cheat sheet from a json file.
 
   Arguments:
-    fname: str an optional file name to read the cheat sheet from.
+    list: str An optional local list name to read the cheatsheet from. This 
+      looks for a file in the default application directory with the local 
+      file name 'list.json'. This argument is mututally exclusive with 
+      listpath.
+    listpath: str An optional full path name to read the cheatsheet from. 
+      This argument is mututally exclusive with listpath.
 
   Returns:
     CheatSheet: object with contents given by the loaded file.
+
+  Raises:
+    Exception: If both list and listpath are given.
   """
-  fname = fname or _get_default_cheatsheet_file()
+  if list is not None and listpath is not None:
+    raise Exception(
+      'Cannot set both list and listpath args (this should never happen.)')
+
+  fname = listpath or _get_default_list_file(list=list)
 
   # If file doesn't exist, return a new blank cheat sheet.
   if not os.path.isfile(fname):
