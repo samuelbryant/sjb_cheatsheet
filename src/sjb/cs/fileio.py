@@ -6,7 +6,8 @@ import sjb.cs.classes
 import sjb.cs.display
 
 
-DEFAULT_LIST_FILE='cheatsheet'
+_DEFAULT_LIST_FILE='cheatsheet'
+_LIST_FILE_EXTENSION = '.json'
 
 def _get_user_data_dir():
   """Gets the default dir where applications can store data for this user."""
@@ -23,8 +24,27 @@ def _get_default_list_file(list=None):
 
   Note: list should not have an extension.
   """
-  list = list or DEFAULT_LIST_FILE
-  return os.path.join(_get_app_data_dir(), list + '.json')
+  list = list or _DEFAULT_LIST_FILE
+  return os.path.join(_get_app_data_dir(), list + _LIST_FILE_EXTENSION)
+
+def get_all_list_files():
+  """Returns a list of all the cheatsheet lists stored in the data directory.
+
+  Returns:
+    List of the local file names (without the extensions) for all of the c
+      heatsheet lists stored in the data directory.
+  """
+  dir = _get_app_data_dir()
+  files = os.listdir(dir)
+  matching = []
+  for f in files:
+    if not os.path.isfile(os.path.join(dir, f)):
+      continue
+    # Check that it has correct extension.
+    if not f.endswith(_LIST_FILE_EXTENSION): 
+      continue
+    matching.append(f[0:(len(f)-len(_LIST_FILE_EXTENSION))])
+  return matching
 
 def _encode_entry(entry):
   entry.validate()

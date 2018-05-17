@@ -15,6 +15,7 @@ sjb-cheatsheet command [<args>]
 Where command can be:
   add     Add a new entry to the cheatsheet
   info    Shows meta info about cheatsheet
+  lists   Lists all of the cheatsheets stored in the data directory
   remove  Removes an entry from the cheatsheet
   show    Shows the entries in a cheatsheet
   update  Updates an entry in the cheatsheet
@@ -134,6 +135,17 @@ class Program(object):
     print('%-27s %s' % ('Primary key', 'Count'))
     for key, count in sorted_primary:
       print('  %-25s %d' % (key, count))
+
+  def lists(self):
+    """Implements the 'lists' command."""
+    parser = argparse.ArgumentParser(
+      prog=PROGRAM + ' lists',
+      description='Lists all of the cheatsheets stored in the data directory')
+
+    args = parser.parse_args(sys.argv[2:])
+
+    lists = sjb.cs.fileio.get_all_list_files()
+    print('Cheatsheets: ' + ', '.join(lists))
 
   def show(self):
     """Implements the 'show' command."""
