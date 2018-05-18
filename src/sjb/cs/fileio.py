@@ -41,7 +41,7 @@ def get_all_list_files():
     if not os.path.isfile(os.path.join(dir, f)):
       continue
     # Check that it has correct extension.
-    if not f.endswith(_LIST_FILE_EXTENSION): 
+    if not f.endswith(_LIST_FILE_EXTENSION):
       continue
     matching.append(f[0:(len(f)-len(_LIST_FILE_EXTENSION))])
   return matching
@@ -51,7 +51,7 @@ def _encode_entry(entry):
   return {
     'oid': entry.oid,
     'primary': entry.primary,
-    'tags': list(entry.tags),
+    'tags': sorted(list(entry.tags)),
     'clue': entry.clue,
     'answer': entry.answer
   }
@@ -68,9 +68,9 @@ def save_cheatsheet(cs, list=None, listpath=None):
   """Saves a cheatsheet list to a json file.
 
   Arguments:
-    list: str An optional local list name to save the cheatsheet list as. The 
+    list: str An optional local list name to save the cheatsheet list as. The
       resulting file is saved in the default application directory with the
-      local file name 'list.json'. This argument is mututally exclusive with 
+      local file name 'list.json'. This argument is mututally exclusive with
       listpath.
     listpath: str An optional full path name to save the cheatsheet list to.
       This argument is mututally exclusive with listpath.
@@ -82,7 +82,7 @@ def save_cheatsheet(cs, list=None, listpath=None):
     raise Exception(
       'Cannot set both list and listpath args (this should never happen')
 
-  # First check list/listpath arguments, then try the file that the cheatsheet 
+  # First check list/listpath arguments, then try the file that the cheatsheet
   # was read from. If none of those exist, use the default list file.
   # TODO: reconsider this logic. Is this really the best behavior?
   if list:
@@ -108,11 +108,11 @@ def load_cheatsheet(list=None, listpath=None):
   """Loads a cheat sheet from a json file.
 
   Arguments:
-    list: str An optional local list name to read the cheatsheet from. This 
-      looks for a file in the default application directory with the local 
-      file name 'list.json'. This argument is mututally exclusive with 
+    list: str An optional local list name to read the cheatsheet from. This
+      looks for a file in the default application directory with the local
+      file name 'list.json'. This argument is mututally exclusive with
       listpath.
-    listpath: str An optional full path name to read the cheatsheet from. 
+    listpath: str An optional full path name to read the cheatsheet from.
       This argument is mututally exclusive with listpath.
 
   Returns:
