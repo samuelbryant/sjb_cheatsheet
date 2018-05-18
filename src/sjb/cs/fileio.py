@@ -2,30 +2,26 @@
 import os
 import json
 import warnings
+import sjb.common.config
 import sjb.cs.classes
 import sjb.cs.display
 
-
+_SUITE = 'sjb'
+_APP = 'cheatsheet'
 _DEFAULT_LIST_FILE='cheatsheet'
 _LIST_FILE_EXTENSION = '.json'
-
-def _get_user_data_dir():
-  """Gets the default dir where applications can store data for this user."""
-  if 'XDG_DATA_HOME' in os.environ:
-    return os.environ['XDG_DATA_HOME']
-  return os.path.join(os.environ['HOME'], '.local', 'share')
-
-def _get_app_data_dir():
-  """Gets the default dir for this application's data for this user."""
-  return os.path.join(_get_user_data_dir(), 'sjb', 'cheatsheet')
 
 def _get_default_list_file(list=None):
   """Gets the full pathname of the cheatsheet file named list.
 
-  Note: list should not have an extension.
+  Args:
+    list: str a short name giving the local list file name, e.g. 'bash'. This
+      should not contain a file extension.
   """
   list = list or _DEFAULT_LIST_FILE
-  return os.path.join(_get_app_data_dir(), list + _LIST_FILE_EXTENSION)
+  return os.path.join(
+    sjb.common.config.get_user_app_data_dir(_APP, suite_name=_SUITE),
+    list + _LIST_FILE_EXTENSION)
 
 def get_all_list_files():
   """Returns a list of all the cheatsheet lists stored in the data directory.
@@ -34,7 +30,7 @@ def get_all_list_files():
     List of the local file names (without the extensions) for all of the c
       heatsheet lists stored in the data directory.
   """
-  dir = _get_app_data_dir()
+  dir = sjb.common.config.get_user_app_data_dir(_APP, suite_name=_SUITE)
   files = os.listdir(dir)
   matching = []
   for f in files:
@@ -129,6 +125,7 @@ def load_cheatsheet(list=None, listpath=None):
 
   # If file doesn't exist, return a new blank cheat sheet.
   if not os.path.isfile(fname):
+    # TODO: Improve this
     warnings.warn('no cheatsheet file found', UserWarning)
     return sjb.cs.classes.CheatSheet(source_fname=fname)
 
