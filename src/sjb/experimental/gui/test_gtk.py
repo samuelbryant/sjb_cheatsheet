@@ -1,9 +1,13 @@
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+from builtins import *
+
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 # Notes:
-# 
+#
 # **** Signal handling *****
 #
 # To connect a signal

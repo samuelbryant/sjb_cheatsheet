@@ -3,6 +3,9 @@
 This follows he freedesktop XDG base directory specifications:
 https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
 """
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+from builtins import *
 
 import os
 
@@ -25,6 +28,7 @@ def get_user_data_dir():
   else:
     raise Exception('could not find necessary environment variables')
 
+
 def get_user_config_dir():
   """Gets the user-specific dir where apps may store their config files.
 
@@ -43,6 +47,7 @@ def get_user_config_dir():
   else:
     raise Exception('could not find necessary environment variables')
 
+
 def get_user_app_data_dir(app_name, suite_name=None):
   """Gets the user-specific dir where a given app may store its data files.
 
@@ -58,6 +63,7 @@ def get_user_app_data_dir(app_name, suite_name=None):
     Exception: If the default user-specific data dir could not be resolved.
   """
   return os.path.join(get_user_data_dir(), suite_name or '', app_name)
+
 
 def get_user_app_config_dir(app_name, suite_name=None):
   """Gets the user-specific dir where a given app may store its config files.
